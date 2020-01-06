@@ -19,7 +19,7 @@ Prepare your directory by installing:
 Following the above setup:
 1) In batchtools_example.R: you will want to change lines 17 & 31 to relevant pathways on your device.
 2) at the command line, cd to your directory and run the below two lines to initiate the scheduling:
-     module load R
-     Rscript --vanilla batchtools_example.R
+    > module load R
+    > Rscript --vanilla batchtools_example.R
 
 To check how the job is doing, record the jobid or view the logs created in your registry directory. Following hte completion of the job, the list created for model results will live in the results directory of the registry where you can use Batchtools to read in the job results or interpret the .rds files with your favorite method.

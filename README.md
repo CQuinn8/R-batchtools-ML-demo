@@ -17,7 +17,7 @@ Prepare your directory by installing:
   6. rlang 
 
 Following the above setup:
-1) In batchtools_example.R: you will want to change lines 7, 18, 32 to relevant pathways on your device.
+1) In batchtools_example.R: you will want to change lines 17 & 31 to relevant pathways on your device.
 2) at the command line, cd to your directory and run the below two lines to initiate the scheduling:
      module load R
      Rscript --vanilla batchtools_example.R

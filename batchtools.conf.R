@@ -1,0 +1,1 @@
+cluster.functions = makeClusterFunctionsSlurm("/projects/above_gedi/cquinn/DE_project/species-variable-selection/monsoon_demo/slurm-template.tmpl")

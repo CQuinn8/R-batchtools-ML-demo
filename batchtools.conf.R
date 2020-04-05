@@ -1,1 +1,6 @@
-cluster.functions = makeClusterFunctionsSlurm("/projects/above_gedi/cquinn/DE_project/species-variable-selection/monsoon_demo/slurm-template.tmpl")
+(slurm.tmpl <- normalizePath(
+  "~/slurm-afterok.tmpl",
+  mustWork=TRUE))
+cluster.functions = makeClusterFunctionsSlurm(slurm.tmpl)
+## Uncomment for running jobs interactively rather than using SLURM:
+##cluster.functions = makeClusterFunctionsInteractive()

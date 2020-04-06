@@ -3,7 +3,7 @@
 ### Goals for this seminar:
 1. Introduction to xserver access to interactive Rstudio sessions on Monsoon HPC.
 2. Using Rstudio on Monsoon.
-3. Using R batchtools for machine learning 
+3. Using R batchtools for machine learning. 
 
 ## Access Monsoon and Rstudio
 Log on to monsoon using an xserver. I use ([MobaXterm](https://mobaxterm.mobatek.net/)) on my Windows machine to access Monsoon and then interact with rstudio.
@@ -37,5 +37,5 @@ $ rstudio
 5. Interact with Rstudio as you would on a local machine...
 
 ## Species distribution modeling using batchtools 
-1. Now that you have rstudio open, the git repo cloned, and batchtools properly installed on your directory we can walk through a species modeling example using two U.S. tree species (sugar maple and red maple) and two machine learning algorithms (random forest and multiple adaptive regression splines/MARS).
+1. Now that you have rstudio open, the git repo cloned, and batchtools properly installed on your directory we can walk through a species modeling example using two U.S. tree species (sugar maple and table mountain pine) and two machine learning algorithms (random forest and multiple adaptive regression splines [MARS]).
 

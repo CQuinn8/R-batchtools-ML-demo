@@ -3,24 +3,50 @@
 # School of Informatics, Computing, and Cyber Systems, NAU
 # Created: 6-January-2020
 
-# best to download the versions of packages you need to a location
+### SECTION 1 #################################
+### Load libraries and set WD
+
+# best to download the versions of packages you need to a location, for the demo these have been copied
 .libPaths()
-library(rlang)
-library(batchtools) # creates schedule enviro
-library(namedCapture)
-library(caret) # multiple ML algos
-library(earth) # specific ML algo
-library(WeightedROC)
+ll = .libPaths()[1]
+library(rlang, lib.loc = ll) # a dependency for BT that sometimes causes errors
+library(batchtools, lib.loc = ll) # creates schedule enviro
+library(namedCapture, lib.loc = ll) # dependency
+library(caret, lib.loc = ll) # multiple ML algos
+library(earth, lib.loc = ll) # specific ML algo
+library(WeightedROC, lib.loc = ll) # error analysis
 
-############
+
 # Working directory space on monsoon
-wd = ""
+userID = "cq73" # e.g. abc123
+wd = paste0("/home/", userID, "/ecoinf/R-batchtools-ML-demo/")
 
-# monsoon specs
-# CPUs = 1
-# options(future.availableCores.methods = "mc.cores")
-# options(mc.cores = 1)
+### SECTION 2 #################################
+### Batchtools implementation and setup
 
+# registry, this must be a new pathway that is not yet created on monsoon (i.e. "/scratch/<user>/registry-demo")
+reg.dir <- paste0(wd, "registry-demo1")
+
+# Before creating your registry make sure to define cluster functions with this template
+if(FALSE){ 
+  #put this in your ~/.batchtools.conf.R:
+  cluster.functions = makeClusterFunctionsSlurm(paste0(wd,"slurm-afterok.tmpl"))
+}
+
+# Creating your registry (should see: > Sourcing configuration file '')
+reg <- if(file.exists(reg.dir)){
+  loadRegistry(reg.dir)
+}else{
+  makeExperimentRegistry(reg.dir)
+}
+
+# number of external folds
+n.folds <- 3
+
+
+
+
+# TO DO:
 #############
 #Batch tools ML Algo implementation
 

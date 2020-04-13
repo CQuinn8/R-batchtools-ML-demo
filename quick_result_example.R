@@ -13,7 +13,7 @@ library(e1071, lib.loc = ll)
 library(ranger, lib.loc = ll)
 
 # Working directory space on monsoon
-userID = "cq73" # e.g. abc123
+userID = "" # e.g. abc123
 wd = paste0("/home/", userID, "/ecoinf/R-batchtools-ML-demo/")
 reg.dir <- paste0(wd, "registry-demo1")
 

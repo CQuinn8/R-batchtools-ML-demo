@@ -60,8 +60,8 @@ $ cp -r /scratch/cq73/ecoinf/R/ .
 All required packages should be in your wd under /R/3.5/. cd to this directory to verify we have R libraries copied there.
 
 
-## 3. Using R batchtools for machine learning: tree species distribution modeling 
-Now that you have rstudio open, the git repo cloned, and batchtools dependencies properly installed in your directory we can walk through a species modeling example using two U.S. tree species (jack pine and sand pine) and two machine learning algorithms (random forest and multiple adaptive regression splines [MARS]).
+## 3a. Using R batchtools for machine learning: tree species distribution modeling 
+Now that you have rstudio open, the git repo cloned, and batchtools dependencies properly installed in your directory we can walk through a species modeling example using two U.S. tree species (Table Maple Pine and Sugar Maple) and two machine learning algorithms (random forest and multiple adaptive regression splines [MARS]).
 
 In our cloned git repo folder, open "batchtools_example.R". Make sure that RStudio was opened from monsoon while in the git repo folder.
 #### Section 1:
@@ -77,7 +77,7 @@ Sourcing configuration file '/home/cq73/ecoinf/R-batchtools-ML-demo/batchtools.c
 Created registry in '/home/cq73/ecoinf/R-batchtools-ML-demo/registry-demo' using cluster functions 'Slurm'
 ```
 #### Section 3:
-Now we prep data and skip to setup stages. Here we specify a reduced number of observations, this does not have to be done. You do need to specify the corresponding predictor variables though.
+Now we prep data and skip to setup stages. Here we specify a reduced number of observations, this does not have to be done normally. You do need to specify the corresponding predictor variables though.
 1. Run Section 3.
 
 #### Section 4:
@@ -85,8 +85,52 @@ This section requires in depth exploration. For now we keep it simple and say th
 1. a small instance of our data to run interactively at the end of the script
 2. a problem. This is what batchtools uses on each of our ML algorithms when submitted to monsoon (hence the "cv" or cross fold validation name)
 3. Run Section 4.
+#### Section 5: 
+Feel free to explore the algorithms. They have grid searches for parameters and generation of predictive statistics based on the external cross fold validation test sets. 
+#### Section 6:
+Here, the small instance created earlier of two observations is run. Both algorithms are run to test for errors which we receive (and choose, here to ignore).
+#### Section 7:
+This section is what is unique and powerful using BT. A jobarray is created based on the number of functions (2, RF and MARS), number of subjects (2 trees), and the folds (10). The result is one job with 2*2*10 array items (40 jobs). In monsoon, when you use squeue you see the below for an array of 10:
+```
+             JOBID PARTITION     NAME     USER    STATE       TIME TIME_LIMI  NODES NODELIST(REASON)
+        29504377_1       all job4e017     cq73  RUNNING       8:15     10:00      1 cn68
+        29504377_2       all job4e017     cq73  RUNNING       8:15     10:00      1 cn66
+        29504377_3       all job4e017     cq73  RUNNING       8:15     10:00      1 cn65
+        29504377_4       all job4e017     cq73  RUNNING       8:15     10:00      1 cn64
+        29504377_5       all job4e017     cq73  RUNNING       8:15     10:00      1 cn63
+        29504377_6       all job4e017     cq73  RUNNING       8:15     10:00      1 cn63
+        29504377_7       all job4e017     cq73  RUNNING       8:15     10:00      1 cn63
+        29504377_8       all job4e017     cq73  RUNNING       8:15     10:00      1 cn63
+        29504377_9       all job4e017     cq73  RUNNING       8:15     10:00      1 cn63
+       29504377_10       all job4e017     cq73  RUNNING       8:15     10:00      1 cn63
+```
+Bash scripting can do the same thing manually passing the size of the array `#SBATCH --array=1-500` and when calling an rscript you can pass the job array ID (e.g 1,2,3...500) as a wildcard to the script: `Rscript /projects/species_model.R $SLURM_ARRAY_TASK_ID`
+
+In the BT jobtable (lives in the registry), errors and notes are recorded so that we know if any job array IDs have failed and what reason they failed. This bcomes a useful aspect with large arrays (e.g. >10,000).
+
+
+## 3b. Viewing batchtools resutls
+Open "quick_result_example.R" and run through script (replace userID again). THis script simply shows how to access our results that are queried through the job table. Below is the output result from one of the job arrays run from above:
+
+```
+> algo.result <- loadResult(test.set.info)
+> algo.result$TP
+[1] 14
+> algo.result$FP
+[1] 133
+> algo.result$TN
+[1] 2105
+> algo.result$FN
+[1] 3
+> algo.result$auc
+[1] 0.8820507
+> algo.result$tss
+[1] 0.7641014
+```
+Further results can be visualized here: 
 
 ## Warnings and things to know using RStudio on Monsoon with an xserver:
 1. Patience is key with xservers! Especially on a VPN. 
 2. Sometimes selcted code will be replaced with a "." Just hit "ctl+z" to fix this.
 3. Rstudio r0.98-3.4.2 does not support "ctr+ENTER" to run a chunk of code by default.
+4. For a more extensive implementation on Batchtools see https://tdhock.github.io/blog/2020/monsoon-batchtools/

@@ -1,9 +1,9 @@
 # Species Distribution Modeling using R batchtools
 ##### 13-April-2020 | EcoInformatics Seminar
 ### Goals for this seminar:
-1. Introduction to xserver access to interactive Rstudio sessions on Monsoon HPC.
+1. Introduction to xserver access for interactive Rstudio sessions on Monsoon HPC.
 2. Using Rstudio on Monsoon.
-3. Using R batchtools for machine learning. 
+3. Using R's batchtools for machine learning implementation using job arrays.
 
 ## 1. Access Monsoon and Rstudio
 Log on to monsoon using an xserver. I use ([MobaXterm](https://mobaxterm.mobatek.net/)) on my Windows machine to access Monsoon and then interact with rstudio.
@@ -71,26 +71,41 @@ In our cloned git repo folder, open "batchtools_example.R". Make sure that RStud
 Here we will set up the batchtools registry for our work.
 1. Open "batchtools.conf.R". This file tells our work session that we will be working with Slurm as a job scheduler using "slurm_afterok.tmpl" as the batchtools template.
 2. Open "slurm_afterok.tmpl". If you have used bash scripts with Slurm before you will recognize the format of this file. It serves as the bash script to initiate multiple jobs. More specifics on this later.
-3. Run Section 2. You should see the following if your registry was successful:
+3. Run reg.dir and check the path to make sure it exists (particulalry you created /ecoinf/):
+```
+> reg.dir <- paste0(wd, "registry-demo")
+> reg.dir
+[1] "/home/cq73/ecoinf/R-batchtools-ML-demo/registry-demo"
+```
+4. Run Section 2. You should see the following if your registry was successful:
 ```
 Sourcing configuration file '/home/cq73/ecoinf/R-batchtools-ML-demo/batchtools.conf.R' ...
 Created registry in '/home/cq73/ecoinf/R-batchtools-ML-demo/registry-demo' using cluster functions 'Slurm'
 ```
 #### Section 3:
-Now we prep data and skip to setup stages. Here we specify a reduced number of observations, this does not have to be done normally. You do need to specify the corresponding predictor variables though.
+Now we prep data and skip to setup stages. Here we specify a reduced number of observations, this does not have to be done normally, but is here to get results in <10min. You do need to specify the corresponding predictor variables though.
 1. Run Section 3.
-
 #### Section 4:
-This section requires in depth exploration. For now we keep it simple and say that it sets up:
-1. a small instance of our data to run interactively at the end of the script
-2. a problem. This is what batchtools uses on each of our ML algorithms when submitted to monsoon (hence the "cv" or cross fold validation name)
-3. Run Section 4.
+This section requires in depth exploration. For now we keep it simple and say that it sets up essential functions for batchtools. These include:
+1. a small instance of our data to run interactively at the end of the script;
+2. a problem. This is what batchtools uses for each of our ML algorithms when submitted to monsoon (hence the "cv" or cross fold validation name).
+3. a function that sets up the ML algos (makeFun).
+4. Run Section 4.
 #### Section 5: 
-Feel free to explore the algorithms. They have grid searches for parameters and generation of predictive statistics based on the external cross fold validation test sets. 
+Feel free to explore the algorithms. They have grid searches for parameters and generation of predictive statistics based on the external cross fold validation test sets. For the demo we will simply acknowledge there are two, unique ML agorithms.
+1. Run Section 5.
 #### Section 6:
 Here, the small instance created earlier of two observations is run. Both algorithms are run to test for errors which we receive (and choose, here to ignore).
+1. Run Section 6. There will be a fun output (for 2 observations). Note: we also see two errors, if you are interested in ML modeling, why are we getting error [1]?
+```
+Warning messages:
+1: In train.default(x, y, weights = w, ...) :
+  You are trying to do regression and your outcome only has two possible values Are you trying to do classification? If so, use a 2 level factor as your outcome column.
+```
 #### Section 7:
-This section is what is unique and powerful using BT. A jobarray is created based on the number of functions (2, RF and MARS), number of subjects (2 trees), and the folds (10). The result is one job with 2*2*10 array items (40 jobs). In monsoon, when you use squeue you see the below for an array of 10:
+Question: How many jobs are we expecting to exist (hint: think about our subjects, folds, and algos).
+1. Run Section 7 line-by-line. View output for each.
+2. This section is what is unique and powerful using BT. A jobarray is created based on the number of functions (2, RF and MARS), number of subjects (2 trees), and the folds (10). The result is one job with 2*2*10 array items (40 jobs). In monsoon, when you use squeue you see the below for an array of 10:
 ```
              JOBID PARTITION     NAME     USER    STATE       TIME TIME_LIMI  NODES NODELIST(REASON)
         29504377_1       all job4e017     cq73  RUNNING       8:15     10:00      1 cn68
@@ -104,13 +119,21 @@ This section is what is unique and powerful using BT. A jobarray is created base
         29504377_9       all job4e017     cq73  RUNNING       8:15     10:00      1 cn63
        29504377_10       all job4e017     cq73  RUNNING       8:15     10:00      1 cn63
 ```
-Bash scripting can do the same thing manually passing the size of the array `#SBATCH --array=1-500` and when calling an rscript you can pass the job array ID (e.g 1,2,3...500) as a wildcard to the script: `Rscript /projects/species_model.R $SLURM_ARRAY_TASK_ID`
+3. End the while loop if you ran it.
+4. Go back to our monsoon shell (keep R open) and check your queue `squeue -u <userID> -l` to see how our job tasks are doing.
 
-In the BT jobtable (lives in the registry), errors and notes are recorded so that we know if any job array IDs have failed and what reason they failed. This bcomes a useful aspect with large arrays (e.g. >10,000).
+Note: Bash scripting can do the same thing we did by manually passing the size of the array `#SBATCH --array=1-500` in a bash script. When calling an rscript you can pass the job array ID (e.g 1,2,3...500) as a wildcard to the script: `Rscript /projects/species_model.R $SLURM_ARRAY_TASK_ID` to create a job array task (e.g. in the Rscript, the slurm array creates a task for a specific file in a folder of 500 files). See slurm resources on [arrays](https://slurm.schedmd.com/job_array.html).
+
+In the BT jobtable (lives in the registry), errors and notes are recorded so that we know if any job array IDs have failed and what reason they failed. This becomes a useful aspect when implementing large arrays (e.g. >10,000 tasks).
 
 
 ## 3b. Viewing batchtools resutls
-Open "quick_result_example.R" and run through script (replace userID again). THis script simply shows how to access our results that are queried through the job table. Below is the output result from one of the job arrays run from above:
+Open "quick_result_example.R" and run through script.
+1. Clear your rstudio environment. (little broom under environment tab that says "Clear")
+2. Change userID and make sure wd is the correct pathway.
+3. Run through script.
+
+This script simply shows how to access our results that are queried through the job table. Below is the output result from one of the job arrays run from above:
 
 ```
 > algo.result <- loadResult(test.set.info)
@@ -127,10 +150,10 @@ Open "quick_result_example.R" and run through script (replace userID again). THi
 > algo.result$tss
 [1] 0.7641014
 ```
-Further results can be visualized here: 
+Further results and batchtools implementation can be visualized in this [GitHub repo](https://github.com/tdhock/species-variable-selection)
 
 ## Warnings and things to know using RStudio on Monsoon with an xserver:
 1. Patience is key with xservers! Especially on a VPN. 
-2. Sometimes selcted code will be replaced with a "." Just hit "ctl+z" to fix this.
-3. Rstudio r0.98-3.4.2 does not support "ctr+ENTER" to run a chunk of code by default.
+2. Sometimes, selected code will be replaced with a "." Just hit "ctl+z" to fix this.
+3. Rstudio r0.98-3.5.2 does not support "ctr+ENTER" to run a chunk of code by default. You can explore changing this in global options.
 4. For a more extensive implementation on Batchtools see https://tdhock.github.io/blog/2020/monsoon-batchtools/

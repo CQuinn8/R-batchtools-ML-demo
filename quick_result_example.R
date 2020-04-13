@@ -15,7 +15,7 @@ library(ranger, lib.loc = ll)
 # Working directory space on monsoon
 userID = "" # e.g. abc123
 wd = paste0("/home/", userID, "/ecoinf/R-batchtools-ML-demo/")
-reg.dir <- paste0(wd, "registry-demo1")
+reg.dir <- paste0(wd, "registry-demo")
 
 #import primary registry
 reg <- loadRegistry(reg.dir)
